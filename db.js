@@ -18,3 +18,22 @@ const conectar = async () => {
         }
     }
 }
+
+const getUser = async (id=undefined) => {
+    try {
+        const conexao = await conectar();
+        let resultado = [];
+    
+        if (!id){
+            resultado = await conexao.db('Usuarios').collection('Usuario').find({}).toArray();
+        } else {
+            resultado = await conexao.db('Usuarios').collection('Usuario').findOne({_id: new ObjectId(id)})
+        }
+    
+        await conexao.close();
+        return resultado;
+    
+    } catch (e) {
+        console.error(e);
+    }
+};
