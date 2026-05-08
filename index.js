@@ -1,4 +1,5 @@
 import express from 'express';
+import db from './db.js'
 
 const app = express();
 app.use(express.json());
@@ -18,22 +19,24 @@ let usuarios = [
 //     }
 // });
 
-app.get('/users', (req, res) => {
-  	if (!usuarios[0]){
+app.get('/users', async (req, res) => {
+  let resposta = await db.getUser();
+
+  if (!resposta[0]){
 		res.send('Nenhum usuário encontrado!');
 	} else {
-		res.send(usuarios);
+		res.send(resposta);
 	}
 })
 
-app.get('/users/:id', (req, res) => {
+app.get('/users/:id', async(req, res) => {
 	const idUser = req.params.id;
-  	const usuario = usuarios.filter((usr) => usr.id == idUser);
+  const usuario = await db.getUser(idUser);
 
-	if (!usuario[0]) {
+	if (!usuario) {
 		res.send('Usuário não encontrado!');
 	} else {
-		res.send(usuario[0]);
+		res.send(usuario);
 	}
 })
 
