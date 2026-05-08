@@ -27,7 +27,7 @@ const getUser = async (id=undefined) => {
         if (!id){
             resultado = await conexao.db('Usuarios').collection('Usuario').find({}).toArray();
         } else {
-            resultado = await conexao.db('Usuarios').collection('Usuario').findOne({_id: new ObjectId(id)})
+            resultado = await conexao.db('Usuarios').collection('Usuario').findOne({_id: new ObjectId(id)});
         }
     
         await conexao.close();
@@ -61,3 +61,17 @@ const attUser = async (user, id) => {
         console.error(e);
     }
 }
+
+const deleteUser = async (id) => {
+    try {
+        const conexao = await conectar();
+        await conexao.db('Usuarios').collection('Usuario').deleteOne({_id: new ObjectId(id)});
+        await conexao.close();
+        return `Usuário ${id} deletado do MongoDB!`;
+
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+export default {getUser, createUser, attUser, deleteUser};
