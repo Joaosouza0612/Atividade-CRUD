@@ -49,3 +49,15 @@ const createUser = async (user) => {
         console.error(e);
     }
 }
+
+const attUser = async (user, id) => {
+    try {
+        const conexao = await conectar();
+        await conexao.db('Usuarios').collection('Usuario').replaceOne({_id: new ObjectId(id)}, user);
+        await conexao.close();
+        return `Usuário ${user.nome} atualizado no MongoDB!`;
+
+    } catch (e) {
+        console.error(e);
+    }
+}
