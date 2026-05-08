@@ -74,4 +74,5 @@ const deleteUser = async (id) => {
     }
 }
 
-export default {getUser, createUser, attUser, deleteUser};
+const db = {getUser, createUser, attUser, deleteUser};
+export default db;
