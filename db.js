@@ -7,72 +7,45 @@ const client = new MongoClient(URI);
 const conectar = async () => {
     if (global.conexaoMongo && global.conexaoMongo.state !== "disconnected") {
         return global.conexaoMongo;
-    } else {
-        try {
-            const db = await client.connect();
-            global.conexaoMongo = db;
-            return db;
-        
-        } catch (error){
-            console.error(error);
-        }
     }
-}
-
-const getUser = async (id=undefined) => {
     try {
-        const conexao = await conectar();
-        let resultado = [];
-    
-        if (!id){
-            resultado = await conexao.db('Usuarios').collection('Usuario').find({}).toArray();
-        } else {
-            resultado = await conexao.db('Usuarios').collection('Usuario').findOne({_id: new ObjectId(id)});
-        }
-    
-        await conexao.close();
-        return resultado;
-    
-    } catch (e) {
-        console.error(e);
+        const connection = await client.connect();
+        global.conexaoMongo = connection;
+        return connection;
+    } catch (error) {
+        console.error("Erro na conexão:", error);
+        throw error;
     }
 };
 
-const createUser = async (user) => {
-    try {
-        const conexao = await conectar();
-        await conexao.db('Usuarios').collection('Usuario').insertOne(user);
-        await conexao.close();
-        return `Usuário ${user.nome} adicionado ao MongoDB!`;
-
-    } catch (e) {
-        console.error(e);
+const getMovies = async (id = undefined) => {
+    const conexao = await conectar();
+    const colecao = conexao.db('Catalogo').collection('Filmes');
+    if (!id) {
+        return await colecao.find({}).toArray();
     }
-}
+    return await colecao.findOne({ _id: new ObjectId(id) });
+};
 
-const attUser = async (user, id) => {
-    try {
-        const conexao = await conectar();
-        await conexao.db('Usuarios').collection('Usuario').replaceOne({_id: new ObjectId(id)}, user);
-        await conexao.close();
-        return `Usuário ${user.nome} atualizado no MongoDB!`;
+const createMovie = async (movie) => {
+    const conexao = await conectar();
+    const res = await conexao.db('Catalogo').collection('Filmes').insertOne(movie);
+    return res;
+};
 
-    } catch (e) {
-        console.error(e);
-    }
-}
+const updateMovie = async (id, movie) => {
+    const conexao = await conectar();
+    return await conexao.db('Catalogo').collection('Filmes').replaceOne(
+        { _id: new ObjectId(id) }, 
+        movie
+    );
+};
 
-const deleteUser = async (id) => {
-    try {
-        const conexao = await conectar();
-        await conexao.db('Usuarios').collection('Usuario').deleteOne({_id: new ObjectId(id)});
-        await conexao.close();
-        return `Usuário ${id} deletado do MongoDB!`;
+const deleteMovie = async (id) => {
+    const conexao = await conectar();
+    return await conexao.db('Catalogo').collection('Filmes').deleteOne({ _id: new ObjectId(id) });
+};
 
-    } catch (e) {
-        console.error(e);
-    }
-}
+console.log(await getMovies())
 
-const db = {getUser, createUser, attUser, deleteUser};
-export default db;
+export default { getMovies, createMovie, updateMovie, deleteMovie };

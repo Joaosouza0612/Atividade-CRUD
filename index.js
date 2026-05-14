@@ -1,73 +1,40 @@
 import express from 'express';
-import db from './db.js'
+import db from './db.js';
 
 const app = express();
 app.use(express.json());
 
-let usuarios = [
-  	{ id: 0, nome: "Leticia"}
-];
+// Listar filmes
+app.get('/movies', async (req, res) => {
+    try {
+        const filmes = await db.getMovies();
+        res.status(200).send(filmes);
+    } catch (err) {
+        res.status(500).send("Erro ao buscar filmes");
+    }
+});
 
-// app.get('/hello/:nome', (req, res) => {
-//     const nome = req.params.nome
-//     if (nome == 'xablau'){
-//       res.status(401).json({
-//         error: 'Não Autorizado!'
-//       })
-//     } else {
-//       res.send(`Hello ${nome}!`);
-//     }
-// });
+// Criar filme
+app.post('/movies', async (req, res) => {
+    try {
+        const { titulo, diretor } = req.body;
+        await db.createMovie({ titulo, diretor });
+        res.status(201).send("Filme criado com sucesso!");
+    } catch (err) {
+        res.status(500).send("Erro ao criar filme");
+    }
+});
 
-app.get('/users', async (req, res) => {
-  let resposta = await db.getUser();
-
-  if (!resposta[0]){
-		res.send('Nenhum usuário encontrado!');
-	} else {
-		res.send(resposta);
-	}
-})
-
-app.get('/users/:id', async(req, res) => {
-	const idUser = req.params.id;
-  const usuario = await db.getUser(idUser);
-
-	if (!usuario) {
-		res.send('Usuário não encontrado!');
-	} else {
-		res.send(usuario);
-	}
-})
-
-app.post('/users', (req, res) => {
-	const nome = req.body.nome;
-	const idUser = usuarios.length;
-
-	usuarios.push({id: idUser, nome});
-	res.send("Usuário criado com sucesso!");
-})
-
-app.put('/users/:id', (req, res) => {
-	const nome = req.body.nome;
-	const idUser = req.params.id;
-	usuarios.forEach((usr) => {
-		if (usr.id == idUser) {
-			usr.nome = nome;
-		}
-	})
-
-	res.send("Usuário atualizado com sucesso!");
-})
-
-app.delete('/users/:id', (req, res) => {
-	const idUser = req.params.id;
-	const usuariosAtt = usuarios.filter((usr) => usr.id != idUser);
-	usuarios = usuariosAtt;
-
-	res.send("Usuário deletado com sucesso!")
-})
+// Deletar filme
+app.delete('/movies/:id', async (req, res) => {
+    try {
+        await db.deleteMovie(req.params.id);
+        res.send("Filme deletado com sucesso!");
+    } catch (err) {
+        res.status(400).send("ID inválido ou erro no banco");
+    }
+});
 
 app.listen(3000, () => {
-  	console.log(`Servidor rodando em http://localhost:3000`);
+    console.log(`🎬 Servidor rodando em http://localhost:3000`);
 });
