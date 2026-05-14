@@ -5,9 +5,9 @@ const app = express();
 app.use(express.json());
 
 // Listar filmes
-app.get('/movies', async (req, res) => {
+app.get('/movies/:id', async (req, res) => {
     try {
-        const filmes = await db.getMovies();
+        const filmes = await db.getMovies(req.params.id);
         res.status(200).send(filmes);
     } catch (err) {
         res.status(500).send("Erro ao buscar filmes");
@@ -32,6 +32,23 @@ app.delete('/movies/:id', async (req, res) => {
         res.send("Filme deletado com sucesso!");
     } catch (err) {
         res.status(400).send("ID inválido ou erro no banco");
+    }
+});
+
+app.put('/movies/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const dadosAtualizados = req.body; 
+
+        const resultado = await db.updateMovie(id, dadosAtualizados);
+
+        if (resultado.matchedCount === 0) {
+            return res.status(404).send("Filme não encontrado para atualizar.");
+        }
+
+        res.send("Filme atualizado com sucesso!");
+    } catch (err) {
+        res.status(400).send("Erro ao atualizar: ID inválido ou dados incorretos.");
     }
 });
 

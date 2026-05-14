@@ -35,9 +35,9 @@ const createMovie = async (movie) => {
 
 const updateMovie = async (id, movie) => {
     const conexao = await conectar();
-    return await conexao.db('Catalogo').collection('Filmes').replaceOne(
+    return await conexao.db('Catalogo').collection('Filmes').updateOne(
         { _id: new ObjectId(id) }, 
-        movie
+        { $set: movie } 
     );
 };
 
